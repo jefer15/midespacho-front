@@ -1,1 +1,146 @@
-<p>cases-list works!</p>
+<div class="p-6 text-white">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight">Cases</h1>
+      <p class="text-white/40 text-sm mt-0.5">Manage all legal cases in your firm</p>
+    </div>
+    <button mat-flat-button (click)="openCreateDialog()"
+      class="!bg-indigo-600 hover:!bg-indigo-500 !text-white !rounded-lg !px-4 !py-2 flex items-center gap-2 transition-colors">
+      <mat-icon class="!text-base">add</mat-icon>
+      New Case
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-4">
+    <div class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 w-80">
+      <mat-icon class="text-white/30 !text-lg">search</mat-icon>
+      <input
+        (keyup)="applyFilter($event)"
+        placeholder="Search cases..."
+        class="bg-transparent text-sm text-white placeholder-white/30 outline-none w-full">
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex justify-center py-24">
+      <mat-spinner diameter="36" class="!stroke-indigo-500"></mat-spinner>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!loading()) {
+    <div class="rounded-xl border border-white/8 overflow-hidden">
+      <table mat-table [dataSource]="dataSource" matSort class="!bg-transparent w-full">
+
+        <!-- Case Number -->
+        <ng-container matColumnDef="caseNumber">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header
+            class="!bg-white/[0.02] !text-white/40 !text-xs !font-semibold !uppercase !tracking-widest !border-b !border-white/8 !py-3">
+            Case #
+          </th>
+          <td mat-cell *matCellDef="let row" class="!border-b !border-white/5 !py-4">
+            <span class="font-mono text-indigo-400 text-sm">{{ row.caseNumber }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Client -->
+        <ng-container matColumnDef="clientName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header
+            class="!bg-white/[0.02] !text-white/40 !text-xs !font-semibold !uppercase !tracking-widest !border-b !border-white/8">
+            Client
+          </th>
+          <td mat-cell *matCellDef="let row" class="!border-b !border-white/5 !py-4">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-indigo-600/30 border border-indigo-500/30 text-xs flex items-center justify-center text-indigo-400 font-semibold">
+                {{ row.clientName.charAt(0) }}
+              </div>
+              <span class="text-sm text-white">{{ row.clientName }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Attorney -->
+        <ng-container matColumnDef="attorney">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header
+            class="!bg-white/[0.02] !text-white/40 !text-xs !font-semibold !uppercase !tracking-widest !border-b !border-white/8">
+            Attorney
+          </th>
+          <td mat-cell *matCellDef="let row" class="!border-b !border-white/5 !py-4">
+            <span class="text-sm text-white/70">{{ row.attorney }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Subject -->
+        <ng-container matColumnDef="subject">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header
+            class="!bg-white/[0.02] !text-white/40 !text-xs !font-semibold !uppercase !tracking-widest !border-b !border-white/8">
+            Subject
+          </th>
+          <td mat-cell *matCellDef="let row" class="!border-b !border-white/5 !py-4">
+            <span class="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-white/50">
+              {{ row.subject ?? '—' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header
+            class="!bg-white/[0.02] !text-white/40 !text-xs !font-semibold !uppercase !tracking-widest !border-b !border-white/8">
+            Status
+          </th>
+          <td mat-cell *matCellDef="let row" class="!border-b !border-white/5 !py-4">
+            <span class="text-xs px-2 py-1 rounded-full font-medium {{ getStatus(row.status).classes }}">
+              {{ getStatus(row.status).label }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Due Date -->
+        <ng-container matColumnDef="dueDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header
+            class="!bg-white/[0.02] !text-white/40 !text-xs !font-semibold !uppercase !tracking-widest !border-b !border-white/8">
+            Due Date
+          </th>
+          <td mat-cell *matCellDef="let row" class="!border-b !border-white/5 !py-4">
+            <span class="text-sm font-mono text-white/50">{{ row.dueDate | date:'MM/dd/yyyy' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef
+            class="!bg-white/[0.02] !text-white/40 !text-xs !font-semibold !uppercase !tracking-widest !border-b !border-white/8 !text-right">
+            Actions
+          </th>
+          <td mat-cell *matCellDef="let row" class="!border-b !border-white/5 !py-4 !text-right">
+            <button mat-stroked-button (click)="viewCase(row.id)"
+              class="!text-indigo-400 !border-indigo-500/30 !rounded-lg !text-xs hover:!bg-indigo-500/10 transition-colors">
+              <mat-icon class="!text-base mr-1">open_in_new</mat-icon>
+              View Case
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="!bg-white/[0.02]"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          class="hover:!bg-white/[0.03] transition-colors cursor-default"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell text-center text-white/30 py-12" [attr.colspan]="displayedColumns.length">
+            <mat-icon class="!text-4xl block mx-auto mb-2 !text-white/10">folder_open</mat-icon>
+            No cases found
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons
+        class="!bg-white/[0.02] !border-t !border-white/8 !text-white/40">
+      </mat-paginator>
+    </div>
+  }
+</div>

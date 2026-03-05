@@ -1,1 +1,158 @@
-<p>case-detail works!</p>
+<div class="p-6 text-white">
+  @if (loading()) {
+    <div class="flex justify-center py-24">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  }
+
+  @if (caseData(); as c) {
+    <div class="mb-6">
+      <button mat-button (click)="goBack()" class="!text-white/40 hover:!text-white !mb-3 !pl-0">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Cases
+      </button>
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-xs font-mono text-white/30 tracking-widest uppercase">Case</span>
+            <code class="text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded text-indigo-400">
+              {{ c.caseNumber }}
+            </code>
+            <span class="text-xs px-2 py-0.5 rounded-full font-medium border {{ getStatus(c.status).classes }}">
+              {{ getStatus(c.status).label }}
+            </span>
+          </div>
+          <h1 class="text-2xl font-semibold tracking-tight mb-1">{{ c.clientName }}</h1>
+          <p class="text-white/40 text-sm">{{ c.description }}</p>
+        </div>
+        <button mat-flat-button (click)="openUploadDialog()"
+          class="!bg-indigo-600 hover:!bg-indigo-500 !text-white !rounded-lg !px-5 flex items-center gap-2 transition-colors">
+          <mat-icon class="!text-base">upload_file</mat-icon>
+          Add Documents
+        </button>
+      </div>
+    </div>
+
+    <!-- Info cards -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="bg-white/[0.03] border border-white/8 rounded-xl p-4">
+        <p class="text-xs text-white/30 mb-1">Attorney</p>
+        <p class="text-sm font-medium">{{ c.attorney }}</p>
+      </div>
+      <div class="bg-white/[0.03] border border-white/8 rounded-xl p-4">
+        <p class="text-xs text-white/30 mb-1">Court</p>
+        <p class="text-sm text-white/70">{{ c.court || '—' }}</p>
+      </div>
+      <div class="bg-white/[0.03] border border-white/8 rounded-xl p-4">
+        <p class="text-xs text-white/30 mb-1">Opened</p>
+        <p class="text-sm font-mono">{{ c.openingDate | date:'MM/dd/yyyy' }}</p>
+      </div>
+      <div class="bg-white/[0.03] border border-white/8 rounded-xl p-4">
+        <p class="text-xs text-white/30 mb-1">Due Date</p>
+        <p class="text-sm font-mono text-amber-400">{{ c.dueDate | date:'MM/dd/yyyy' }}</p>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-4 mb-8">
+      <div class="bg-white/[0.03] border border-white/8 rounded-xl p-4 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-indigo-500/15 flex items-center justify-center">
+          <mat-icon class="text-indigo-400">folder</mat-icon>
+        </div>
+        <div>
+          <p class="text-2xl font-semibold">{{ c.batches.length }}</p>
+          <p class="text-xs text-white/30">Batches</p>
+        </div>
+      </div>
+      <div class="bg-white/[0.03] border border-white/8 rounded-xl p-4 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+          <mat-icon class="text-emerald-400">description</mat-icon>
+        </div>
+        <div>
+          <p class="text-2xl font-semibold">{{ totalFiles() }}</p>
+          <p class="text-xs text-white/30">Documents</p>
+        </div>
+      </div>
+      <div class="bg-white/[0.03] border border-white/8 rounded-xl p-4 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center">
+          <mat-icon class="text-amber-400">event</mat-icon>
+        </div>
+        <div>
+          <p class="text-2xl font-semibold">3</p>
+          <p class="text-xs text-white/30">Hearings</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Batches -->
+    <div>
+      <h2 class="text-sm font-semibold uppercase tracking-widest text-white/30 mb-4">Document Batches</h2>
+
+      @if (!c.batches.length) {
+        <div class="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-2xl text-white/20">
+          <mat-icon class="!text-5xl mb-3">folder_open</mat-icon>
+          <p class="text-sm">No documents uploaded yet</p>
+          <button mat-stroked-button (click)="openUploadDialog()"
+            class="!text-indigo-400 !border-indigo-500/30 !rounded-lg !mt-4 hover:!bg-indigo-500/10">
+            <mat-icon class="!text-base mr-1">upload_file</mat-icon>
+            Upload first batch
+          </button>
+        </div>
+      }
+
+      <div class="space-y-4">
+        @for (batch of c.batches; track batch.id) {
+          <div class="bg-white/[0.03] border border-white/8 rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-white/5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-500/15 flex items-center justify-center">
+                  <mat-icon class="text-indigo-400 !text-base">folder_zip</mat-icon>
+                </div>
+                <div>
+                  <p class="text-sm font-medium">{{ batch.title }}</p>
+                  @if (batch.description) {
+                    <p class="text-xs text-white/30 mt-0.5">{{ batch.description }}</p>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-white/30 font-mono">{{ batch.createdAt | date:'MM/dd/yy HH:mm' }}</span>
+                <span class="text-xs bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white/40">
+                  {{ batch.files.length }} file(s)
+                </span>
+                <button mat-icon-button (click)="deleteBatch(batch.id)"
+                  class="!w-7 !h-7 !text-white/20 hover:!text-rose-400 transition-colors"
+                  matTooltip="Delete batch">
+                  <mat-icon class="!text-base">delete_outline</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            @if (batch.files.length) {
+              <div class="divide-y divide-white/5">
+                @for (file of batch.files; track file.id) {
+                  <div class="flex items-center gap-4 px-5 py-3 hover:bg-white/[0.02] transition-colors group">
+                    <mat-icon class="text-white/30 !text-xl shrink-0">{{ iconForMime(file.mimetype) }}</mat-icon>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm text-white/80 truncate">{{ file.originalName }}</p>
+                      <p class="text-xs text-white/30 font-mono mt-0.5">{{ file.relativePath }}</p>
+                    </div>
+                    <span class="text-xs text-white/30 font-mono shrink-0">{{ formatBytes(file.size) }}</span>
+                    <a [href]="'http://localhost:3000/files/' + file.relativePath" target="_blank"
+                      class="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button mat-stroked-button
+                        class="!text-indigo-400 !border-indigo-500/30 !rounded-lg !text-xs hover:!bg-indigo-500/10">
+                        <mat-icon class="!text-sm mr-1">open_in_new</mat-icon>
+                        Open
+                      </button>
+                    </a>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

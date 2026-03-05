@@ -1,1 +1,99 @@
-<p>case-form works!</p>
+<div class="bg-[#13151c] text-white p-6 rounded-2xl w-full font-['IBM_Plex_Sans',sans-serif]">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-lg font-semibold">New Case</h2>
+      <p class="text-white/40 text-sm">Fill in the case information below</p>
+    </div>
+    <button mat-icon-button (click)="close()" class="!text-white/30 hover:!text-white">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="form" class="space-y-4">
+    <div class="grid grid-cols-2 gap-4">
+      <mat-form-field appearance="outline" class="w-full dark-field">
+        <mat-label>Case Number *</mat-label>
+        <input matInput formControlName="caseNumber" placeholder="CASE-2025-001">
+        <mat-icon matPrefix class="text-white/30 mr-2">tag</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full dark-field">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          @for (s of statuses; track s.value) {
+          <mat-option [value]="s.value">{{ s.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="w-full dark-field">
+      <mat-label>Client Name *</mat-label>
+      <input matInput formControlName="clientName" placeholder="Full name or company">
+      <mat-icon matPrefix class="text-white/30 mr-2">person</mat-icon>
+    </mat-form-field>
+
+    <div class="grid grid-cols-2 gap-4">
+      <mat-form-field appearance="outline" class="w-full dark-field">
+        <mat-label>Lead Attorney *</mat-label>
+        <input matInput formControlName="attorney" placeholder="A. García">
+        <mat-icon matPrefix class="text-white/30 mr-2">gavel</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full dark-field">
+        <mat-label>Subject</mat-label>
+        <mat-select formControlName="subject">
+          @for (s of subjects; track s) {
+          <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="w-full dark-field">
+      <mat-label>Court</mat-label>
+      <input matInput formControlName="court" placeholder="3rd Civil Court — Bogotá">
+      <mat-icon matPrefix class="text-white/30 mr-2">account_balance</mat-icon>
+    </mat-form-field>
+
+    <div class="grid grid-cols-2 gap-4">
+      <mat-form-field appearance="outline" class="w-full dark-field">
+        <mat-label>Opening Date</mat-label>
+        <input matInput [matDatepicker]="picker1" formControlName="openingDate">
+        <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+        <mat-datepicker #picker1></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full dark-field">
+        <mat-label>Due Date</mat-label>
+        <input matInput [matDatepicker]="picker2" formControlName="dueDate">
+        <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+        <mat-datepicker #picker2></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="w-full dark-field">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3" placeholder="Brief case description..."></textarea>
+    </mat-form-field>
+  </form>
+
+  <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-white/8">
+    <button mat-stroked-button (click)="close()"
+      class="!text-white/50 !border-white/10 !rounded-lg hover:!bg-white/5 transition-colors">
+      Cancel
+    </button>
+    <!-- reemplaza solo el botón submit -->
+    <button mat-flat-button (click)="submit()" [disabled]="form.invalid || saving()"
+      class="!bg-indigo-600 hover:!bg-indigo-500 !text-white !rounded-lg !px-6 disabled:!opacity-40 transition-colors flex items-center gap-1">
+      @if (saving()) {
+      <ng-container>
+        <mat-icon class="animate-spin !text-base">refresh</mat-icon>
+        <span>Saving...</span>
+      </ng-container>
+      } @else {
+      <span>Create Case</span>
+      }
+    </button>
+  </div>
+</div>
