@@ -3,15 +3,14 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
-import { CaseService } from '../../../../core/services/case';
-import { Case } from '../../../../core/models/case.models';
+import { CaseService } from '../../../../core/services/case/case';
+import { Case, CaseFile, FileBatch } from '../../../../core/models/case.models';
 import { CaseFileBatch } from '../../components/case-file-batch/case-file-batch';
-
+import { ToastService } from '../../../../core/services/toast/toast';
 
 @Component({
   selector: 'app-case-detail',
@@ -20,7 +19,6 @@ import { CaseFileBatch } from '../../components/case-file-batch/case-file-batch'
     DatePipe,
     MatButtonModule,
     MatIconModule,
-    MatTabsModule,
     MatChipsModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
@@ -33,19 +31,40 @@ export class CaseDetail implements OnInit {
   private router = inject(Router);
   private _caseService = inject(CaseService);
   private dialog = inject(MatDialog);
+  private toast = inject(ToastService);
 
   caseData = signal<Case | null>(null);
   loading = signal(true);
+  deletingBatchId = signal<number | null>(null);
+  deletingFileId = signal<number | null>(null);
+
+  readonly editableStatuses = ['active', 'under_review'];
 
   statusMap: Record<string, { label: string; classes: string }> = {
-    active:       { label: 'Active',       classes: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' },
-    under_review: { label: 'Under Review', classes: 'bg-amber-500/15 text-amber-400 border border-amber-500/30' },
-    closed:       { label: 'Closed',       classes: 'bg-slate-500/15 text-slate-400 border border-slate-500/30' },
-    archived:     { label: 'Archived',     classes: 'bg-rose-500/15 text-rose-400 border border-rose-500/30' },
+    active: {
+      label: 'Activo',
+      classes: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+    },
+    under_review: {
+      label: 'En revisión',
+      classes: 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+    },
+    closed: {
+      label: 'Cerrado',
+      classes: 'bg-slate-500/15 text-slate-400 border border-slate-500/30'
+    },
+    archived: {
+      label: 'Archivado',
+      classes: 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+    },
   };
 
   totalFiles = computed(() =>
-    this.caseData()?.batches?.reduce((acc, b) => acc + (b.files?.length ?? 0), 0) ?? 0
+    this.caseData()?.batches?.reduce((acc: number, b: FileBatch) => acc + (b.files?.length ?? 0), 0) ?? 0
+  );
+
+  canEdit = computed(() =>
+    this.editableStatuses.includes(this.caseData()?.status ?? '')
   );
 
   ngOnInit() {
@@ -64,27 +83,56 @@ export class CaseDetail implements OnInit {
   openUploadDialog() {
     const c = this.caseData();
     if (!c) return;
-    const ref = this.dialog.open(CaseFileBatch, {
+    this.dialog.open(CaseFileBatch, {
       width: '560px',
       panelClass: 'dark-dialog',
       data: { caseId: c.id, caseNumber: c.caseNumber },
-    });
-    ref.afterClosed().subscribe(result => {
+    }).afterClosed().subscribe(result => {
       if (result) this.load(c.id);
     });
   }
 
-  deleteBatch(id: number) {
+  deleteBatch(batchId: number) {
     const c = this.caseData();
     if (!c) return;
-    this._caseService.deleteBatch(id).subscribe(() => {
-      this.caseData.set({ ...c, batches: c.batches.filter(b => b.id !== id) });
+    this.deletingBatchId.set(batchId);
+    this._caseService.deleteBatch(batchId).subscribe({
+      next: () => {
+        this.caseData.set({ ...c, batches: c.batches.filter(b => b.id !== batchId) });
+        this.deletingBatchId.set(null);
+        this.toast.success('Archivos eliminados exitosamente');
+      },
+      error: () => {
+        this.deletingBatchId.set(null);
+        this.toast.error('Error al eliminar archivos');
+      },
     });
   }
 
-  getStatus(status: string) {
-    return this.statusMap[status] ?? this.statusMap['active'];
+  deleteFile(fileId: number) {
+    const c = this.caseData();
+    if (!c) return;
+    this.deletingFileId.set(fileId);
+    this._caseService.deleteFile(fileId).subscribe({
+      next: () => {
+        this.caseData.set({
+          ...c,
+          batches: c.batches.map(b => ({
+            ...b,
+            files: b.files.filter((f: CaseFile) => f.id !== fileId),
+          })),
+        });
+        this.deletingFileId.set(null);
+        this.toast.success('Archivo eliminado exitosamente');
+      },
+      error: () => {
+        this.deletingFileId.set(null);
+        this.toast.error('Error al eliminar archivo');
+      },
+    });
   }
+
+  getStatus(status: string) { return this.statusMap[status] ?? this.statusMap['active']; }
 
   formatBytes(b: number) {
     if (b < 1024) return b + ' B';

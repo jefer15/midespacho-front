@@ -1,29 +1,25 @@
-<div class="flex h-screen bg-[#0f1117] overflow-hidden font-['IBM_Plex_Sans',sans-serif]">
+<!-- <div class="flex h-screen bg-[#0f1117] overflow-hidden font-['IBM_Plex_Sans',sans-serif]">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-  <!-- SIDENAV -->
   <aside class="flex flex-col transition-all duration-300 border-r border-white/5 bg-[#0d0f14]"
     [class.w-56]="!collapsed()"
     [class.w-16]="collapsed()">
 
-    <!-- Logo -->
     <div class="flex items-center gap-3 px-4 py-5 border-b border-white/5">
       <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0">
-        <mat-icon class="text-white !text-base !w-4 !h-4">balance</mat-icon>
+        <mat-icon class="text-white text-base w-4 h-4">balance</mat-icon>
       </div>
       @if (!collapsed()) {
         <span class="text-white font-semibold text-sm tracking-tight">MiDespacho</span>
       }
     </div>
 
-    <!-- Nav items -->
     <nav class="flex-1 py-4 space-y-1 px-2">
       @for (item of navItems; track item.route) {
         <a [routerLink]="item.route" routerLinkActive="bg-white/8 text-white"
           [routerLinkActiveOptions]="{exact: item.route === '/'}"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-all group"
           [matTooltip]="collapsed() ? item.label : ''" matTooltipPosition="right">
-          <mat-icon class="!text-xl shrink-0 group-[.active]:text-indigo-400">{{ item.icon }}</mat-icon>
+          <mat-icon class="text-xl shrink-0 group-[.active]:text-indigo-400">{{ item.icon }}</mat-icon>
           @if (!collapsed()) {
             <span class="text-sm font-medium">{{ item.label }}</span>
           }
@@ -31,53 +27,171 @@
       }
     </nav>
 
-    <!-- Bottom: collapse + user -->
     <div class="border-t border-white/5 p-2 space-y-1">
       <button (click)="collapsed.set(!collapsed())"
         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/30 hover:text-white hover:bg-white/5 transition-all">
-        <mat-icon class="!text-xl shrink-0">
+        <mat-icon class="text-xl shrink-0">
           {{ collapsed() ? 'chevron_right' : 'chevron_left' }}
         </mat-icon>
         @if (!collapsed()) {
-          <span class="text-xs">Collapse</span>
+          <span class="text-xs">Ocultar</span>
         }
       </button>
 
       <div class="flex items-center gap-3 px-3 py-2.5 rounded-lg">
         <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-          A
+          JR
         </div>
         @if (!collapsed()) {
           <div>
-            <p class="text-xs font-medium text-white/70">A. García</p>
-            <p class="text-xs text-white/30">Attorney</p>
+            <p class="text-xs font-medium text-white/70">Jeferson Rolón</p>
           </div>
         }
       </div>
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <div class="flex-1 flex flex-col overflow-hidden">
-    <!-- Topbar -->
     <header class="border-b border-white/5 bg-[#0f1117] px-6 py-3 flex items-center justify-between shrink-0">
       <div class="flex items-center gap-2">
-        <mat-icon class="text-white/20 !text-sm">circle</mat-icon>
+        <mat-icon class="text-white/20 text-sm">circle</mat-icon>
         <span class="text-white/40 text-sm font-mono">v1.0.0</span>
       </div>
       <div class="flex items-center gap-3">
-        <button mat-icon-button class="!text-white/30 hover:!text-white">
+        <button mat-icon-button class="text-white/30 hover:text-white">
           <mat-icon>notifications_none</mat-icon>
         </button>
-        <button mat-icon-button class="!text-white/30 hover:!text-white">
-          <mat-icon>settings</mat-icon>
+        <button mat-icon-button class="text-white/30 hover:text-white">
+          <mat-icon>account_circle</mat-icon>
         </button>
       </div>
     </header>
 
-    <!-- Router content -->
     <main class="flex-1 overflow-y-auto">
       <router-outlet />
     </main>
   </div>
+</div> -->
+<div class="flex h-screen bg-[#0f1117] overflow-hidden font-['IBM_Plex_Sans',sans-serif]">
+
+  <aside class="flex flex-col transition-all duration-300 border-r border-white/10 bg-[#0d0f14]"
+    [class.w-56]="!collapsed()" [class.w-16]="collapsed()">
+
+    <!-- logo -->
+
+    <div class="flex items-center gap-3 px-4 py-5 border-b border-white/10">
+
+      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+        <mat-icon class="text-white text-base">balance</mat-icon>
+      </div>
+
+      @if (!collapsed()) {
+      <span class="text-white font-semibold text-sm tracking-tight">
+        MiDespacho
+      </span>
+      }
+
+    </div>
+
+    <!-- navegación -->
+
+    <nav class="flex-1 py-4 space-y-1 px-2">
+
+      @for (item of navItems; track item.route) {
+
+      <a [routerLink]="item.route" routerLinkActive="bg-indigo-600/20 text-white"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-all"
+        [matTooltip]="collapsed() ? item.label : ''" matTooltipPosition="right">
+
+        <mat-icon class="text-lg shrink-0">
+          {{ item.icon }}
+        </mat-icon>
+
+        @if (!collapsed()) {
+        <span class="text-sm font-medium">
+          {{ item.label }}
+        </span>
+        }
+
+      </a>
+
+      }
+
+    </nav>
+
+    <!-- footer sidebar -->
+
+    <div class="border-t border-white/10 p-2 space-y-2">
+
+      <button (click)="collapsed.set(!collapsed())"
+        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/40 hover:text-white hover:bg-white/5">
+
+        <mat-icon>
+          {{ collapsed() ? 'chevron_right' : 'chevron_left' }}
+        </mat-icon>
+
+        @if (!collapsed()) {
+        <span class="text-xs">Colapsar</span>
+        }
+
+      </button>
+
+      <div class="flex items-center gap-3 px-3 py-2.5">
+
+        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white">
+          JR
+        </div>
+
+        @if (!collapsed()) {
+        <div>
+          <p class="text-xs font-medium text-white/80">
+            Jeferson Rolón
+          </p>
+        </div>
+        }
+
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- contenido -->
+
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <header class="border-b border-white/10 bg-[#0f1117] px-6 py-3 flex items-center justify-between">
+
+      <div class="flex items-center gap-2">
+
+        <mat-icon class="text-white/30 text-sm">circle</mat-icon>
+
+        <span class="text-white/40 text-sm font-mono">
+          v1.0.0
+        </span>
+
+      </div>
+
+      <div class="flex items-center gap-3">
+
+        <button mat-icon-button class="text-white/40 hover:text-white">
+          <mat-icon>notifications_none</mat-icon>
+        </button>
+
+        <button mat-icon-button class="text-white/40 hover:text-white">
+          <mat-icon>account_circle</mat-icon>
+        </button>
+
+      </div>
+
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-6">
+
+      <router-outlet />
+
+    </main>
+
+  </div>
+
 </div>

@@ -6,7 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { CaseService } from '../../../../core/services/case';
+import { CaseService } from '../../../../core/services/case/case';
+import { ToastService } from '../../../../core/services/toast/toast';
 
 @Component({
   selector: 'app-case-file-batch',
@@ -26,8 +27,8 @@ export class CaseFileBatch {
   private fb = inject(FormBuilder);
   private _caseService = inject(CaseService);
   private dialogRef = inject(MatDialogRef<CaseFileBatch>);
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { caseId: number; caseNumber: string }) { }
+  private toast = inject(ToastService);
+  public data:{ caseId: number; caseNumber: string } = inject(MAT_DIALOG_DATA)
 
   uploading = signal(false);
   isDragOver = false;
@@ -56,13 +57,20 @@ export class CaseFileBatch {
     return (b / 1048576).toFixed(1) + ' MB';
   }
 
-  submit() {
+  save() {
     if (this.form.invalid || !this.selectedFiles.length) return;
     this.uploading.set(true);
     const { title, description } = this.form.value;
     this._caseService.uploadBatch(this.data.caseId, this.selectedFiles, title!, description ?? '').subscribe({
-      next: () => { this.uploading.set(false); this.dialogRef.close(true); },
-      error: () => this.uploading.set(false),
+      next: () => {
+        this.toast.success('Archivos subidos exitosamente');
+        this.uploading.set(false);
+        this.dialogRef.close(true);
+      },
+      error: () => {
+        this.uploading.set(false);
+        this.toast.error('Error al subir archivos');
+      },
     });
   }
 
